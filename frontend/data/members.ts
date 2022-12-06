@@ -4,23 +4,22 @@ const Members: MemberType[] = [
   {
     name: 'Mrinalini Madhusudhanan',
     registration_number: 11912265,
-    linkedin: 'https://www.linkedin.com/in/mrinalini-madhusudhanan-5b4b3b1b3/',
+    linkedin: 'https://www.linkedin.com/in/mrinalini-madhusudhanan-124932189',
   },
   {
     name: 'Suranjit Sarkar',
     registration_number: 11913074,
-    linkedin: 'https://www.linkedin.com/in/suranjit-sarkar-5b4b3b1b3/',
+    linkedin: '#',
   },
   {
     name: 'Pambi Vijaya B. Reddy',
     registration_number: 11912857,
-    linkedin:
-      'https://www.linkedin.com/in/pambi-vijaya-bhaskar-reddy-5b4b3b1b3/',
+    linkedin: '#',
   },
   {
     name: 'Harshwardhan Reddy',
     registration_number: 11913568,
-    linkedin: 'https://www.linkedin.com/in/harshwardhan-5b4b3b1b3/',
+    linkedin: '#',
   },
 ];
 

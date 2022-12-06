@@ -27,8 +27,17 @@ DHT dht2(DHTPIN2, DHTTYPE);
 
 // Timer variables
 unsigned long lastTime = 0;
-unsigned long timerDelay = 5000;
+unsigned long timerDelay = 15 * 1000;  // minimum delay between updates must be 15 seconds
 
+const unsigned int TEMP_1_CHANNEL = 1;
+const unsigned int HUMIDITY_1_CHANNEL = 2;
+const unsigned int TEMP_2_CHANNEL = 3;
+const unsigned int HUMIDITY_2_CHANNEL = 4;
+
+const unsigned int SOIL_MOISTURE_1_CHANNEL = 5;
+const unsigned int SOIL_MOISTURE_2_CHANNEL = 6;
+
+/// @brief Reconnect to WiFi if connection is lost or not established
 void wifi_reconnect() {
     if (WiFi.status() != WL_CONNECTED) {
         Serial.print("Attempting to connect");
@@ -70,20 +79,16 @@ void loop() {
         Serial.print("************Sensor Readings************ \n");
 
         int soil_moisture1 = analogRead(AOUT_PIN1);  // read the analog value from sensor
-        int soil_moisture_percentage1 = ((soil_moisture1 / 1024.00) * 100);
+        int soil_moisture_percentage1 = map(soil_moisture1, 0, 4095, 100, 0);
+
+        int soil_moisture2 = analogRead(AOUT_PIN2);  // read the analog value from sensor
+        int soil_moisture_percentage2 = map(soil_moisture2, 0, 4095, 100, 0);
 
         Serial.print("Soil Moisture1: ");
-        Serial.print(soil_moisture_percentage1);
-        Serial.println("% ");
-
-        //*********************************
-        int soil_moisture2 = analogRead(AOUT_PIN2);  // read the analog value from sensor
-        int soil_moisture_percentage2 = (100 - ((soil_moisture2 / 10240.00) * 100));
+        Serial.println(soil_moisture_percentage1);
 
         Serial.print("Soil Moisture2: ");
-        Serial.print(soil_moisture_percentage2);
-        Serial.println("% ");
-        //*********************************
+        Serial.println(soil_moisture_percentage2);
 
         // Wait a few seconds between measurements.
         delay(500);
@@ -93,11 +98,9 @@ void loop() {
         float h1 = dht1.readHumidity();
         // Read temperature as Celsius (the default)
         float t1 = dht1.readTemperature();
-        // Read temperature as Fahrenheit (isFahrenheit = true)
-        float f1 = dht1.readTemperature(true);
 
         // Check if any reads failed and exit early (to try again).
-        if (isnan(h1) || isnan(t1) || isnan(f1)) {
+        if (isnan(h1) || isnan(t1)) {
             Serial.println(F("Failed to read from DHT1 sensor!"));
             return;
         }
@@ -121,35 +124,23 @@ void loop() {
             return;
         }
 
-        // Serial.print(F("Humidity2: "));
-        // Serial.print(h2);
-        // Serial.print(F("%  Temperature2: "));
-        // Serial.print(t2);
-        // Serial.print(F("°C \n"));
-        //****************************************
+        Serial.print(F("Humidity2: "));
+        Serial.print(h2);
+        Serial.print(F("%  Temperature2: "));
+        Serial.print(t2);
+        Serial.print(F("°C \n"));
 
-        // int a = ThingSpeak.writeField(myChannelNumber, 1, t1, myWriteAPIKey);
-        // int b = ThingSpeak.writeField(myChannelNumber, 2, h1, myWriteAPIKey);
-
-        // int c = ThingSpeak.writeField(myChannelNumber, 3, t2, myWriteAPIKey);
-        // int d = ThingSpeak.writeField(myChannelNumber, 4, h2, myWriteAPIKey);
-
-        Serial.print("Soil Moisture5: ");
-        Serial.print(soil_moisture_percentage1);
-
-        Serial.println();
-
-        // int e = write_to_thingspeak(5, soil_moisture_percentage1);
-
+        ThingSpeak.setField(1, t1);
+        ThingSpeak.setField(2, h1);
+        ThingSpeak.setField(3, t2);
+        ThingSpeak.setField(4, h2);
         ThingSpeak.setField(5, soil_moisture_percentage1);
         ThingSpeak.setField(6, soil_moisture_percentage2);
 
-        int e = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+        int response = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
-        // int e = ThingSpeak.writeField(myChannelNumber, 5, soil_moisture_percentage1, myWriteAPIKey);
-        // int f = ThingSpeak.writeField(myChannelNumber, 6, soil_moisture_percentage2, myWriteAPIKey);
-
-        Serial.println(e);
+        Serial.print("Response: ");
+        Serial.println(response);
 
         lastTime = millis();
     }
