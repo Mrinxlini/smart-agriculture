@@ -44,7 +44,7 @@ const GridBox = (param: FieldDataType) => {
 const TimestampView = ({ time }: { time: Date }) => {
   return (
     <div className="text-right">
-      <div>{`Last updated at ${time.toLocaleTimeString()}`}</div>
+      <div>{`*Moisture Level. Last updated at ${time.toLocaleTimeString()}`}</div>
     </div>
   );
 };
