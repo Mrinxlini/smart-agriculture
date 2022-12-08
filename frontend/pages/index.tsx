@@ -1,4 +1,5 @@
 import Heading from '@components/heading/Heading';
+import LegendsView from '@components/legends/Legends';
 import MembersView from '@components/members/Members';
 import ThematicMap from '@components/thematicMap/ThematicMap';
 import Head from 'next/head';
@@ -23,6 +24,10 @@ export default function Home() {
 
         {/* thematic map */}
         <ThematicMap />
+
+        <LegendsView />
+
+        <hr />
 
         {/* members */}
         <MembersView />
