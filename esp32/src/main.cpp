@@ -11,7 +11,7 @@ const char* myWriteAPIKey = THINGSPEAK_WRITE_API_KEY;  // Edit CHANNEL WRITE API
 
 WiFiClient client;
 
-unsigned long myChannelNumber = 1916975;  // Edit channel ID
+unsigned long myChannelNumber = THINGSPEAK_CHANNEL_NUMBER;  // Edit channel ID
 
 #include "DHT.h"
 #define DHTPIN1 4  // Digital pin connected to the DHT sensor
@@ -37,6 +37,33 @@ const unsigned int HUMIDITY_2_CHANNEL = 4;
 const unsigned int SOIL_MOISTURE_1_CHANNEL = 5;
 const unsigned int SOIL_MOISTURE_2_CHANNEL = 6;
 
+/// @brief Update the ThingSpeak channel with the sensor readings
+/// @param temperature_1
+/// @param temperature_2
+/// @param humidity_1
+/// @param humidity_2
+/// @param soil_moisture_1
+/// @param soil_moisture_2
+/// @return int HTTP response code
+int update_to_thingspeak(float temperature_1, float temperature_2, float humidity_1, float humidity_2, int soil_moisture_1, int soil_moisture_2) {
+    ThingSpeak.setField(1, temperature_1);
+    ThingSpeak.setField(2, humidity_1);
+    ThingSpeak.setField(3, temperature_2);
+    ThingSpeak.setField(4, humidity_2);
+    ThingSpeak.setField(5, soil_moisture_1);
+    ThingSpeak.setField(6, soil_moisture_2);
+
+    int response = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+
+    if (response == 200) {
+        Serial.println("Channel update successful.");
+    } else {
+        Serial.println("Problem updating channel. HTTP error code " + String(response));
+    }
+
+    return response;
+}
+
 /// @brief Reconnect to WiFi if connection is lost or not established
 void wifi_reconnect() {
     if (WiFi.status() != WL_CONNECTED) {
@@ -50,12 +77,6 @@ void wifi_reconnect() {
 
         Serial.println("\nWiFi Connected");
     }
-}
-
-int write_to_thingspeak(int field, float value) {
-    int status = ThingSpeak.writeField(myChannelNumber, field, value, myWriteAPIKey);
-
-    return status;
 }
 
 void setup() {
@@ -93,11 +114,8 @@ void loop() {
         // Wait a few seconds between measurements.
         delay(500);
 
-        // Reading temperature or humidity takes about 250 milliseconds!
-        // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-        float h1 = dht1.readHumidity();
-        // Read temperature as Celsius (the default)
-        float t1 = dht1.readTemperature();
+        float h1 = dht1.readHumidity();     // Read humidity (percent)
+        float t1 = dht1.readTemperature();  // Read temperature as Celsius (the default)
 
         // Check if any reads failed and exit early (to try again).
         if (isnan(h1) || isnan(t1)) {
@@ -111,15 +129,11 @@ void loop() {
         Serial.print(t1);
         Serial.print(F("°C \n"));
 
-        //********************
-        float h2 = dht2.readHumidity();
-        // Read temperature as Celsius (the default)
-        float t2 = dht2.readTemperature();
-        // Read temperature as Fahrenheit (isFahrenheit = true)
-        float f2 = dht2.readTemperature(true);
+        float h2 = dht2.readHumidity();     // Read humidity (percent)
+        float t2 = dht2.readTemperature();  // Read temperature as Celsius (the default)
 
         // Check if any reads failed and exit early (to try again).
-        if (isnan(h2) || isnan(t2) || isnan(f2)) {
+        if (isnan(h2) || isnan(t2)) {
             Serial.println(F("Failed to read from DHT2 sensor!"));
             return;
         }
@@ -130,17 +144,8 @@ void loop() {
         Serial.print(t2);
         Serial.print(F("°C \n"));
 
-        ThingSpeak.setField(1, t1);
-        ThingSpeak.setField(2, h1);
-        ThingSpeak.setField(3, t2);
-        ThingSpeak.setField(4, h2);
-        ThingSpeak.setField(5, soil_moisture_percentage1);
-        ThingSpeak.setField(6, soil_moisture_percentage2);
-
-        int response = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
-
-        Serial.print("Response: ");
-        Serial.println(response);
+        // Update the ThingSpeak channel with the sensor readings
+        update_to_thingspeak(t1, t2, h1, h2, soil_moisture_percentage1, soil_moisture_percentage2);
 
         lastTime = millis();
     }

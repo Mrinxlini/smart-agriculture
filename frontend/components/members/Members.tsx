@@ -22,8 +22,8 @@ const MembersView = () => {
   }, []);
 
   return (
-    <div className="my-16 mt-7">
-      <hr />
+    <div className="my-16 mt-5">
+      {/* <hr /> */}
 
       <div className="text-3xl my-2">Members</div>
 

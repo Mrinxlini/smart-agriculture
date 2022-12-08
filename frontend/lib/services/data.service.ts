@@ -40,7 +40,7 @@ const getFieldData = async ({ field }: { field: number }) => {
 };
 
 const getAllFieldsData = async () => {
-  const fields = [5, 6];
+  const fields = [1, 2, 3, 4, 5, 6];
 
   const data: FieldDataType[] = [];
 
