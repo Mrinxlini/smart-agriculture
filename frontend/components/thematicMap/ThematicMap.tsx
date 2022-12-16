@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 const TimestampView = ({ time }: { time: Date }) => {
   return (
     <div className="text-right">
-      <div>{`Last updated at ${time.toLocaleTimeString()}`}</div>
+      <div>{`Last updated: ${time.toLocaleString()}`}</div>
     </div>
   );
 };
